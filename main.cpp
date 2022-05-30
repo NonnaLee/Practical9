@@ -41,11 +41,15 @@ string prefixToInfix(string prefix) {
     stack<int> myStack;
     bool first = true;
     int size = (int)prefixArr.size() - 1;
+    int hitOpp = false;
+    int skip = 0;
     for (int i = size; i >= 0; i--) {
         string val = prefixArr[i];
         // cout << val + " ";
         
         if (isOpperator(val)) {
+            skip--;
+            hitOpp = true;
             //string val1 = ;
             //string val2 = 
             if (myStack.size() < 2) {
@@ -71,95 +75,58 @@ string prefixToInfix(string prefix) {
             else {
                 return "Error";
             }
-            if (first) {
+            if (skip == 0) {
+
+            }
+            else if (first) {
                 infix += "("+to_string(num1) + " " + val + " " + to_string(num2)+")";
                 first = false;
-            }
-            else if (myStack.size() == 0) {
+            }else if (myStack.size() == 0) {
                 infix = "" + infix + " " + val + " " + to_string(num2) + "";
             }
             else {
-                infix = "(" +infix +" " + val + " " + to_string(num2) + ")";
+                if (skip > 0){
+
+                    infix = "(" + to_string(num1) + " " + val + " " + to_string(num2) + ")" + infix;
+                }
+                else {
+                    infix = "(" + infix + " " + val + " " + to_string(num2) + ")";
+                }
             }
             
+            //cout << infix + "\n";
             myStack.push(number);
         }
         else {
+            if (hitOpp) {
+                hitOpp = false;
+                int j = i;
+                bool search = true;
+                skip = 0;
+                while (search) {
+                    j--;
+                    if (isOpperator(prefixArr[j])) {
+                        skip++;
+                    }
+                    if(isOpperator(prefixArr[j]) && j-1 < 0) {
+                        search = false;
+                        infix = " " + prefixArr[j] + " " + infix;
+                        //cout << infix + "\n";
+                    }
+                    if (j == 0) {
+                        search = false;
+                    }
+                }
+            }
             myStack.push(stoi(val));
+            //first = true;
         }
     }
     if (myStack.size()>1) {
         return "Error";
     }
     infix += " = " + to_string(myStack.top());
-    return infix;
-    /*
-    while (i < ((int)prefixArr.size()) && prefixArr.size() != 1) {
-
-        if (prefixArr.size() == 2) {
-           return "Error";
-        }
-        string val1 = prefixArr[i];
-        string val2 = prefixArr[i + 1];
-        string val3 = prefixArr[i + 2];
-        if (!isOpperator(val2) && isOpperator(val3)) {
-            count = 0;
-        }
-        if (isOpperator(val1) && !isOpperator(val2) && !isOpperator(val3)) {
-            float num1 = stoi(val2);
-            float num2 = stoi(val3);
-            if (prefixArr[i] == "*") {
-                number = num1 * num2;
-            }
-            else if (prefixArr[i] == "/") {
-                number = num1 / num2;
-            }
-            else if (prefixArr[i] == "+") {
-                number = num1 + num2;
-            }
-            else if (prefixArr[i] == "-") {
-                number = num1 - num2;
-            }
-            else {
-                return "Error";
-            }
-            if (firstRunThrough) {
-
-                infix += "(" + val2 + " " + val1 + " " + val3 + ")";
-                
-            }
-            else {
-                if (prefixArr.size() == 3) {
-                    infix += " " + val1 + " " + val3;
-                }
-                else {
-                    infix = "(" + infix + " " + val1 + " " + val3 + ")";
-                }
-            }
-            prefixArr.erase(prefixArr.begin() + i, (prefixArr.begin() + i + 3));
-            prefixArr.insert(prefixArr.begin() + i, to_string(number));
-            printPrefix(prefixArr);
-            i = prefixArr.size() - 3;
-            row++;
-            count++;
-        }
-        else {
-            //count = 0;
-            row = 0;
-        }
-        i--;
-        if (prefixArr.size() == 1) {
-            infix += " = " + prefixArr[0];
-            return infix;
-        }
-        if (i < 0) {
-            i = prefixArr.size() - 3;
-            firstRunThrough = false;
-        }
-    }
-    */
-    
-    
+    return infix; 
 }
 
 void test(string prefix, string expected) {
